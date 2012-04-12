@@ -34,6 +34,10 @@
  */
 #define OMAP_RPROC_CMA_BASE	(0xa9000000)
 
+static struct omap_rproc_timers_info ipu_timers[] = {
+	{ .id = 3 },
+};
+
 /*
  * These data structures define platform-specific information
  * needed for each supported remote processor.
@@ -48,6 +52,8 @@ static struct omap_rproc_pdata omap4_rproc_data[] = {
 		.firmware	= "ducati-m3-core0.xem3",
 		.mbox_name	= "mailbox-1",
 		.oh_name	= "ipu_c0",
+		.timers         = ipu_timers,
+		.timers_cnt     = ARRAY_SIZE(ipu_timers),
 	},
 };
 
