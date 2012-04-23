@@ -45,6 +45,7 @@ struct omap_rproc {
 	struct omap_mbox *mbox;
 	struct notifier_block nb;
 	struct rproc *rproc;
+	rproc_error_handler_t handler;
 };
 
 /**

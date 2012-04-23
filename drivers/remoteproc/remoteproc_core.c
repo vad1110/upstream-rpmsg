@@ -67,6 +67,29 @@ typedef int (*rproc_handle_resources_t)(struct rproc *rproc,
 typedef int (*rproc_handle_resource_t)(struct rproc *rproc, void *, int avail);
 
 /*
+ * This is the generic error handler
+ *
+ * Currently this is mostly a stub, but it will be later used to trigger
+ * the recovery of the remote processor.
+ */
+static int rproc_error_handler(struct rproc *rproc, enum rproc_error type)
+{
+	struct device *dev = rproc->dev;
+
+	dev_err(dev, "fatal error: %d\n", type);
+
+	/*
+	 * we just plan to use this as a recovery trigger
+	 * idea is to call the work in charge to do clean up
+	 * and recovery of remoteproc in case of an error.
+	 * For now just mark it as crashed.
+	 */
+	rproc->state = RPROC_CRASHED;
+
+	return 0;
+}
+
+/*
  * This is the IOMMU fault handler we register with the IOMMU API
  * (when relevant; not all remote processors access memory through
  * an IOMMU).
@@ -1056,6 +1079,14 @@ static int rproc_fw_boot(struct rproc *rproc, const struct firmware *fw)
 	if (ret) {
 		dev_err(dev, "Failed to load program segments: %d\n", ret);
 		goto clean_up;
+	}
+
+	if (rproc->ops->reg_err_handler) {
+		ret = rproc->ops->reg_err_handler(rproc, rproc_error_handler);
+		if (ret) {
+			dev_err(dev, "can't register error handler %d\n", ret);
+			goto clean_up;
+		}
 	}
 
 	/* power up the remote processor */

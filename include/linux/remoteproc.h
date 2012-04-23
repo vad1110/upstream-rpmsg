@@ -326,6 +326,35 @@ struct rproc_mem_entry {
 
 struct rproc;
 
+/*
+ * enum - Generic error types
+ *
+ * @RPROC_IOMMU_FAULT: Iommu fault detected in remoteproc.
+ *
+ * @RPROC_WATCHDOG: Watchdog detected in remoteproc.
+ *
+ * @RPROC_BUS_FAULT: Bus fault detected in remoteproc.
+ *
+ * @RPROC_DIV_BY_ZERO: Division by zero detected in remoteproc.
+ *
+ * @RPROC_STACK_OVERFLOW: Stack overflow detected in remoteproc.
+ *
+ * @RPROC_MEM_CORRUPTION: Memory corruption detected in remoteproc.
+ *
+ * @RPROC_GENERAL: a general error detected in remoteproc.
+ */
+enum rproc_error {
+	RPROC_IOMMU_FAULT	= 0,
+	RPROC_WATCHDOG		= 1,
+	RPROC_BUS_FAULT		= 2,
+	RPROC_DIV_BY_ZERO	= 3,
+	RPROC_STACK_OVERFLOW	= 4,
+	RPROC_MEM_CORRUPTION	= 5,
+	RPROC_GENERAL		= 6,
+};
+
+typedef int (*rproc_error_handler_t)(struct rproc *, enum rproc_error);
+
 /**
  * struct rproc_ops - platform-specific device handlers
  * @start:	power on the device and boot it
@@ -336,6 +365,8 @@ struct rproc_ops {
 	int (*start)(struct rproc *rproc);
 	int (*stop)(struct rproc *rproc);
 	void (*kick)(struct rproc *rproc, int vqid);
+	int (*reg_err_handler)(struct rproc *rproc,
+				      rproc_error_handler_t handler);
 };
 
 /**
